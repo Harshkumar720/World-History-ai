@@ -1,1 +1,622 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<title>World History AI</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Georgia,"Times New Roman",serif;
+height:100vh;
+background:#F5E6C8;
+display:flex;
+justify-content:center;
+align-items:center;
+color:#2C2C2C;
+}
+
+.app-container{
+width:1100px;
+height:650px;
+display:flex;
+background:#fff8e6;
+border-radius:12px;
+box-shadow:0 10px 30px rgba(0,0,0,0.2);
+overflow:hidden;
+}
+
+.sidebar{
+width:250px;
+background:#ead7b0;
+padding:20px;
+}
+
+.sidebar h3{
+margin-top:0;
+color:#5B3A29;
+}
+
+.new-chat{
+background:#8B4513;
+border:none;
+padding:10px;
+width:100%;
+border-radius:6px;
+color:white;
+font-weight:bold;
+cursor:pointer;
+margin-bottom:15px;
+}
+
+.new-chat:hover{
+background:#6e350e;
+}
+
+.history-item{
+position:relative;
+background:#f5e9cf;
+padding:8px 10px;
+border-radius:6px;
+margin-bottom:8px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+cursor:pointer;
+}
+
+.history-item:hover{
+background:#e7d7b5;
+}
+
+.history-menu{
+font-size:18px;
+cursor:pointer;
+opacity:0;
+}
+
+.history-item:hover .history-menu{
+opacity:1;
+}
+
+.menu-popup{
+position:absolute;
+right:5px;
+top:25px;
+background:white;
+border-radius:6px;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
+overflow:hidden;
+z-index:10;
+}
+
+.menu-popup div{
+padding:8px 12px;
+cursor:pointer;
+}
+
+.menu-popup div:hover{
+background:#eee;
+}
+
+.chat-area{
+flex:1;
+display:flex;
+flex-direction:column;
+padding:20px;
+}
+
+.header{
+display:flex;
+align-items:center;
+gap:12px;
+margin-bottom:10px;
+}
+
+.logo{
+font-size:32px;
+}
+
+.title{
+font-size:22px;
+font-weight:bold;
+color:#5B3A29;
+}
+
+.subtitle{
+font-size:12px;
+color:#7a5a3a;
+}
+
+.chat-box{
+flex:1;
+overflow-y:auto;
+background:#fdf6e6;
+border-radius:10px;
+padding:15px;
+margin-bottom:10px;
+display:flex;
+flex-direction:column;
+}
+
+.message{
+margin-bottom:12px;
+padding:10px;
+border-radius:8px;
+max-width:75%;
+}
+
+.user{
+background:#d8c4a3;
+align-self:flex-end;
+}
+
+.ai{
+background:#e9dbc0;
+align-self:flex-start;
+}
+
+.message ul{
+margin:0;
+padding-left:20px;
+}
+
+.copy-btn{
+background:#8B4513;
+border:none;
+padding:5px 8px;
+margin-top:6px;
+border-radius:4px;
+cursor:pointer;
+font-size:12px;
+color:white;
+}
+
+.copy-btn:hover{
+background:#6e350e;
+}
+
+.input-area{
+display:flex;
+gap:10px;
+}
+
+input{
+flex:1;
+padding:12px;
+border:1px solid #c4a97a;
+border-radius:6px;
+font-size:14px;
+}
+
+button{
+background:#8B4513;
+border:none;
+padding:12px 15px;
+border-radius:6px;
+cursor:pointer;
+color:white;
+font-weight:bold;
+}
+
+button:hover{
+background:#6e350e;
+}
+
+.warning-box{
+margin-top:8px;
+padding:10px;
+border-radius:8px;
+border:1px solid #ff4d4d;
+background:#2b0e0e;
+color:#ffb3b3;
+font-size:13px;
+}
+
+/* Footer */
+
+.footer{
+position:absolute;
+bottom:10px;
+left:20px;
+right:20px;
+display:flex;
+justify-content:space-between;
+font-size:13px;
+color:#5B3A29;
+}
+
+.footer-links a{
+margin-left:15px;
+cursor:pointer;
+text-decoration:none;
+color:#5B3A29;
+}
+
+.footer-links a:hover{
+text-decoration:underline;
+}
+
+/* Info Modal */
+
+.info-page{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:100;
+}
+
+.info-content{
+background:#fff8e6;
+padding:30px;
+border-radius:10px;
+width:600px;
+max-height:70vh;
+overflow:auto;
+}
+
+.back-btn{
+margin-top:20px;
+padding:10px 16px;
+background:#8B4513;
+border:none;
+color:white;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="app-container">
+
+<div class="sidebar">
+<h3>History</h3>
+<button class="new-chat" onclick="newChat()">+ New Chat</button>
+<div id="historyList"></div>
+</div>
+
+<div class="chat-area">
+
+<div class="header">
+<div class="logo">📜</div>
+<div>
+<div class="title">World History AI</div>
+<div class="subtitle">Historical Knowledge Assistant</div>
+</div>
+</div>
+
+<div id="chatBox" class="chat-box"></div>
+
+<div class="input-area">
+<input id="question" placeholder="Ask about world history...">
+<button onclick="ask()">Send</button>
+</div>
+
+<div class="warning-box">
+⚠ WorldHistoryAI provides simplified educational explanations of world history.
+</div>
+
+</div>
+</div>
+
+<!-- FOOTER -->
+
+<div class="footer">
+<div>© 2026 WorldHistoryAI</div>
+
+<div class="footer-links">
+<a onclick="openPage('howto')">How to Use</a>
+<a onclick="openPage('privacy')">Privacy Policy</a>
+<a onclick="openPage('terms')">Terms</a>
+<a onclick="openPage('contact')">Contact</a>
+</div>
+</div>
+
+<!-- INFO PAGE -->
+
+<div id="infoPage" class="info-page">
+<div class="info-content">
+<div id="pageContent"></div>
+</div>
+</div>
+
+<script>
+
+let conversations=[]
+let currentChatIndex=null
+
+function formatPoints(text){
+if(!text.includes("-")){
+return "<p>"+text.replace(/\\n/g,"<br>")+"</p>"
+}
+let points=text.split("-")
+let html="<ul>"
+points.forEach(p=>{
+p=p.trim()
+if(p!==""){
+html+="<li>"+p+"</li>"
+}
+})
+html+="</ul>"
+return html
+}
+
+function copyText(btn){
+let text=btn.parentElement.innerText
+navigator.clipboard.writeText(text)
+btn.innerText="Copied!"
+setTimeout(()=>{btn.innerText="Copy"},1500)
+}
+
+function showWelcome(){
+let chatBox=document.getElementById("chatBox")
+let msg=document.createElement("div")
+msg.className="message ai"
+msg.innerHTML="<b>Hello. I am WorldHistoryAI — an educational assistant for exploring world history.</b>"
+chatBox.appendChild(msg)
+}
+
+function generateTitle(text){
+let words=text.split(" ")
+if(words.length>6){
+return words.slice(0,6).join(" ")+"..."
+}
+return text
+}
+
+function newChat(){
+currentChatIndex=conversations.length
+
+conversations.push({
+title:"New Chat",
+messages:[]
+})
+
+localStorage.setItem("historyChats",JSON.stringify(conversations))
+refreshHistory()
+
+document.getElementById("chatBox").innerHTML=""
+showWelcome()
+}
+
+async function ask(){
+
+let q=document.getElementById("question").value
+if(q.trim()=="") return
+
+if(currentChatIndex===null){
+newChat()
+}
+
+let chatBox=document.getElementById("chatBox")
+
+let user=document.createElement("div")
+user.className="message user"
+user.innerText="You: "+q
+chatBox.appendChild(user)
+
+document.getElementById("question").value=""
+
+let loading=document.createElement("div")
+loading.className="message ai"
+loading.innerText="AI is thinking..."
+chatBox.appendChild(loading)
+
+try{
+
+let res=await fetch(`http://127.0.0.1:8000/chat?question=${encodeURIComponent(q)}`)
+let data=await res.json()
+
+loading.remove()
+
+let ai=document.createElement("div")
+ai.className="message ai"
+
+ai.innerHTML = `
+${formatPoints(data.answer)}
+<br>
+<button class="copy-btn" onclick="copyText(this)">Copy</button>
+`
+
+chatBox.appendChild(ai)
+
+conversations[currentChatIndex].messages.push({
+question:q,
+answer:data.answer
+})
+
+if(conversations[currentChatIndex].messages.length===1){
+conversations[currentChatIndex].title=generateTitle(q)
+refreshHistory()
+}
+
+localStorage.setItem("historyChats",JSON.stringify(conversations))
+
+}catch{
+loading.innerText="Error contacting server"
+}
+
+}
+
+function refreshHistory(){
+
+let list=document.getElementById("historyList")
+list.innerHTML=""
+
+for(let i=0;i<conversations.length;i++){
+
+let item=document.createElement("div")
+item.className="history-item"
+
+item.innerHTML=`
+<span onclick="loadConversation(${i})">${conversations[i].title}</span>
+<span class="history-menu" onclick="toggleMenu(event,${i})">⋯</span>
+`
+
+list.appendChild(item)
+}
+
+}
+
+function toggleMenu(e,index){
+
+e.stopPropagation()
+
+let existing=document.querySelector(".menu-popup")
+if(existing) existing.remove()
+
+let menu=document.createElement("div")
+menu.className="menu-popup"
+
+menu.innerHTML=`
+<div onclick="renameChat(${index})">Rename</div>
+<div onclick="deleteChat(${index})">Delete</div>
+`
+
+e.target.parentElement.appendChild(menu)
+}
+
+function renameChat(index){
+
+let name=prompt("Rename chat:")
+if(!name) return
+
+conversations[index].title=name
+localStorage.setItem("historyChats",JSON.stringify(conversations))
+refreshHistory()
+}
+
+function deleteChat(index){
+
+if(!confirm("Delete chat?")) return
+
+conversations.splice(index,1)
+localStorage.setItem("historyChats",JSON.stringify(conversations))
+refreshHistory()
+
+document.getElementById("chatBox").innerHTML=""
+showWelcome()
+}
+
+function loadConversation(index){
+
+currentChatIndex=index
+
+let chatBox=document.getElementById("chatBox")
+chatBox.innerHTML=""
+
+let chat=conversations[index]
+
+chat.messages.forEach(msg=>{
+
+let user=document.createElement("div")
+user.className="message user"
+user.innerText="You: "+msg.question
+chatBox.appendChild(user)
+
+let ai=document.createElement("div")
+ai.className="message ai"
+
+ai.innerHTML = `
+${formatPoints(msg.answer)}
+<br>
+<button class="copy-btn" onclick="copyText(this)">Copy</button>
+`
+
+chatBox.appendChild(ai)
+
+})
+}
+
+function openPage(type){
+
+let content=""
+
+if(type==="privacy"){
+content=`<h2>Privacy Policy</h2>
+<ul>
+<li>Chat history is stored locally in your browser.</li>
+<li>No personal information is permanently stored.</li>
+<li>Your questions are sent to an AI model to generate answers.</li>
+<li>Avoid entering sensitive personal information.</li>
+<li>This project is designed for educational purposes.</li>
+</ul>
+<button class="back-btn" onclick="closePage()">Back to Chat</button>`
+}
+
+if(type==="terms"){
+content=`<h2>Terms of Use</h2>
+<ul>
+<li>This AI provides simplified explanations of world history.</li>
+<li>Responses may contain inaccuracies.</li>
+<li>Always verify important information with reliable sources.</li>
+<li>This tool is for educational and informational use.</li>
+<li>Developers are not responsible for decisions made using AI responses.</li>
+</ul>
+<button class="back-btn" onclick="closePage()">Back to Chat</button>`
+}
+
+if(type==="howto"){
+content=`<h2>How to Use</h2>
+<ul>
+<li>Type a question about world history.</li>
+<li>Press Enter or click Send.</li>
+<li>The AI will respond with key bullet points.</li>
+<li>Your chats appear in the history sidebar.</li>
+</ul>
+<button class="back-btn" onclick="closePage()">Back to Chat</button>`
+}
+
+if(type==="contact"){
+content=`<h2>Contact</h2>
+<ul>
+<li>This is an educational AI project.</li>
+<li>You can extend it with additional features.</li>
+<li>Modify the project code to customize the app.</li>
+</ul>
+<button class="back-btn" onclick="closePage()">Back to Chat</button>`
+}
+
+document.getElementById("pageContent").innerHTML=content
+document.getElementById("infoPage").style.display="flex"
+
+}
+
+function closePage(){
+document.getElementById("infoPage").style.display="none"
+}
+
+document.getElementById("question").addEventListener("keypress",function(e){
+if(e.key==="Enter") ask()
+})
+
+window.onload=function(){
+
+let stored=localStorage.getItem("historyChats")
+
+if(stored){
+conversations=JSON.parse(stored)
+refreshHistory()
+}
+
+showWelcome()
+}
+
+</script>
+
+</body>
+</html>
 
