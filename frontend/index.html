@@ -417,7 +417,7 @@ chatBox.appendChild(loading)
 
 try{
 
-let res=await fetch(`http://127.0.0.1:8000/chat?question=${encodeURIComponent(q)}`)
+let res = await fetch(`https://world-history-ai-4.onrender.com/chat?question=${encodeURIComponent(q)}`)
 let data=await res.json()
 
 loading.remove()
